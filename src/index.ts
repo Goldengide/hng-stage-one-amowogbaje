@@ -1,37 +1,50 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import { Request, Response } from 'express';
+import { lookup } from 'geoip-lite';
 import axios from 'axios';
-import geoip from 'geoip-lite';
 
 const app = express();
+const port = process.env.PORT || 3000;
 
+// Root route
+app.get('/', (req: Request, res: Response) => {
+    res.send('Welcome to the API! Use /api/hello?visitor_name=YourName to get a personalized greeting.');
+});
+
+// API route
 app.get('/api/hello', async (req: Request, res: Response) => {
-    const visitorName = req.query.visitor_name as string || 'Guest';
+    const visitorName = req.query.visitor_name as string || 'Visitor';
     const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const location = lookup(clientIp as string);
 
-    // Get location data
-    const geo = geoip.lookup(clientIp as string);
-    const location = geo ? geo.city : 'Unknown';
+    let city = 'unknown location';
+    if (location && location.city) {
+        city = location.city;
+    }
 
-    // Get temperature data
-    const weatherApiKey = '247e7341e846c35a976a868d00ad47ec'; // Replace with your weather API key
-    let temperature = 'Unknown';
-    if (location !== 'Unknown') {
+    let temperature = 'unknown';
+    if (city !== 'unknown location') {
         try {
-            const weatherResponse = await axios.get(`http://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${location}`);
-            temperature = weatherResponse.data.current.temp_c;
+            const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather`, {
+                params: {
+                    q: city,
+                    appid: 'your_openweathermap_api_key',
+                    units: 'metric'
+                }
+            });
+            temperature = `${weatherResponse.data.main.temp} degrees Celsius`;
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching weather data:', error);
         }
     }
 
     res.json({
         client_ip: clientIp,
-        location: location,
-        greeting: `Hello, ${visitorName}!, the temperature is ${temperature} degrees Celsius in ${location}`
+        location: city,
+        greeting: `Hello, ${visitorName}! The temperature is ${temperature} in ${city}.`
     });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
