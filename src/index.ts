@@ -4,12 +4,9 @@ import axios from 'axios';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const WEATHER_API_KEY = '2ff975a9f3c741df893141450240407'; // Replace with your Weather API key
-
-// Helper function to get location data from IP
+const WEATHER_API_KEY = '2ff975a9f3c741df893141450240407'; 
 
 
-// Helper function to get weather data
 const getWeatherData = async (ip:any) => {
     
   try {
