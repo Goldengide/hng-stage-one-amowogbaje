@@ -14,14 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const axios_1 = __importDefault(require("axios"));
+require("dotenv/config");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
-const WEATHER_API_KEY = '2ff975a9f3c741df893141450240407'; // Replace with your Weather API key
-// Helper function to get location data from IP
-// Helper function to get weather data
 const getWeatherData = (ip) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield axios_1.default.get(`http://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${ip}`);
+        const response = yield axios_1.default.get(`http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${ip}`);
         return response.data;
     }
     catch (error) {

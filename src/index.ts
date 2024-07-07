@@ -1,17 +1,18 @@
 import express from 'express';
 import axios from 'axios';
+import 'dotenv/config'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const WEATHER_API_KEY = '2ff975a9f3c741df893141450240407'; 
+
 
 
 const getWeatherData = async (ip:any) => {
     
   try {
     const response = await axios.get(
-      `http://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${ip}`
+      `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${ip}`
     );
     return response.data;
   } catch (error) {
